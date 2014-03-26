@@ -1,0 +1,36 @@
+Package	"libscr"
+Version	"0.1.0"
+
+Target
+	Name	"scr"
+	Type	"Library"
+
+	CFlags	"`pkg-config --cflags shim.new`"
+	LDFlags	"`pkg-config --libs shim.new`"
+
+	If [ "$visibility" ]
+		CFlags	+"-fvisibility=internal"
+	EndIf
+
+	Extra	"src/common.h"
+	Extra	"src/defs.h"
+	Extra	"src/impl.h"
+	Extra	"src/pack.h"
+	Extra	"src/pt.h"
+
+	Source	"src/accum.c"
+	Source	"src/buf.c"
+	Source	"src/scr.c"
+	Source	"src/output.c"
+
+	Extra	"src/widget/handler.h"
+
+	Source	"src/widget/edit.c"
+	Source	"src/widget/handler.c"
+	Source	"src/widget/index.c"
+	Source	"src/widget/pane.c"
+	Source	"src/widget/ui.c"
+	Source	"src/widget/widget.c"
+
+	Source	"src/impl/linux.c"
+EndTarget

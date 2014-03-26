@@ -1,0 +1,25 @@
+# vim files
+*.swp
+*.swo
+
+# built files
+*.o
+*.a
+*.so
+*.so.*
+*.dll
+
+# build files
+config.h
+config.log
+config.status
+config.args
+sources.mk
+Makefile
+.deps
+
+# helper scripts
+run.sh
+
+# project-specific built files
+scr.h
