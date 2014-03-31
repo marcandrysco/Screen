@@ -10,6 +10,7 @@ HEADERS = \
 	  src/widget/edit.h \
 	  src/widget/handler.h \
 	  src/widget/index.h \
+	  src/widget/match.h \
 	  src/widget/pane.h \
 	  src/widget/ui.h \
 	  src/widget/widget.h \
