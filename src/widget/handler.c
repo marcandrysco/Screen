@@ -19,24 +19,6 @@ void scr_cmd_exec(struct scr_cmd_h cmd, const char *str, struct scr_context_t co
 }
 
 /**
- * Execute a response handler.
- *   @resp: The response.
- *   @key: The key.
- *   @context: The context.
- *   @complete: Auto-complete handler.
- *   &returns: A flag whether to process the character.
- */
-
-_export
-bool scr_resp_exec(struct scr_resp_h resp, int32_t key, struct scr_context_t context, struct scr_complete_h complete)
-{
-	if(resp.func != NULL)
-		return resp.func(key, context, complete, resp.arg);
-
-	return true;
-}
-
-/**
  * Execute a select handler.
  *   @select: The select handler.
  *   @entry: The entry.

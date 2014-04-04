@@ -12,7 +12,7 @@
  */
 
 struct scr_cmd_h;
-struct scr_resp_h;
+struct scr_resp_t;
 struct scr_ui_t;
 
 
@@ -40,7 +40,7 @@ void scr_ui_reset(struct scr_ui_t *ui);
 void scr_ui_raw(struct scr_ui_t *ui, bool raw);
 void scr_ui_msg(struct scr_ui_t *ui, struct io_chunk_t msg);
 void scr_ui_help(struct scr_ui_t *ui, struct io_chunk_t msg);
-void scr_ui_prompt(struct scr_ui_t *ui, struct io_chunk_t msg, struct scr_resp_h resp);
+void scr_ui_prompt(struct scr_ui_t *ui, struct io_chunk_t msg, struct scr_resp_t resp);
 void scr_ui_error(struct scr_ui_t *ui, struct io_chunk_t error);
 void scr_ui_clear(struct scr_ui_t *ui);
 void scr_ui_status(struct scr_ui_t *ui, struct io_chunk_t status);

@@ -56,29 +56,6 @@ struct scr_complete_h {
 
 
 /**
- * Response function.
- *   @key: The key.
- *   @context: The context from the pane.
- *   @complete: Auto-complete handler.
- *   @arg: The argument.
- *   &returns: A flag whether to process the character.
- */
-
-typedef bool (*scr_resp_f)(int32_t key, struct scr_context_t context, struct scr_complete_h complete, void *arg);
-
-/**
- * Response handler.
- *   @func: The function.
- *   @arg: The argument.
- */
-
-struct scr_resp_h {
-	scr_resp_f func;
-	void *arg;
-};
-
-
-/**
  * Selection function.
  *   @entry: The entry.
  *   @key: The selected key.
@@ -105,7 +82,6 @@ struct scr_select_h {
  */
 
 void scr_cmd_exec(struct scr_cmd_h cmd, const char *str, struct scr_context_t context);
-bool scr_resp_exec(struct scr_resp_h resp, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 void scr_select_exec(struct scr_select_h select, const char *entry, const void *key, struct scr_context_t context);
 void scr_complete_exec(struct scr_complete_h complete, const char *str);
 

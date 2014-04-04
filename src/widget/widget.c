@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "widget.h"
 #include "handler.h"
+#include "resp.h"
 
 
 /*
@@ -34,7 +35,7 @@ void scr_widget_close(struct scr_widget_t *widget)
  */
 
 _export
-void scr_context_prompt(struct scr_context_t context, struct io_chunk_t prompt, struct scr_resp_h resp)
+void scr_context_prompt(struct scr_context_t context, struct io_chunk_t prompt, struct scr_resp_t resp)
 {
 	context.mode->iface->prompt(context.mode->ref, prompt, resp);
 }

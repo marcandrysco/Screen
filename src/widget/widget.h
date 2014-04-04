@@ -13,7 +13,7 @@
 
 struct scr_t;
 struct scr_context_t;
-struct scr_resp_h;
+struct scr_resp_t;
 
 
 /**
@@ -47,7 +47,7 @@ typedef void (*scr_help_f)(void *ref, struct io_chunk_t msg);
  *   @resp: The response handler.
  */
 
-typedef void (*scr_prompt_f)(void *ref, struct io_chunk_t prompt, struct scr_resp_h resp);
+typedef void (*scr_prompt_f)(void *ref, struct io_chunk_t prompt, struct scr_resp_t resp);
 
 /**
  * Provide an error.
@@ -216,7 +216,7 @@ void scr_widget_close(struct scr_widget_t *widget);
  * context function declarations
  */
 
-void scr_context_prompt(struct scr_context_t context, struct io_chunk_t prompt, struct scr_resp_h resp);
+void scr_context_prompt(struct scr_context_t context, struct io_chunk_t prompt, struct scr_resp_t resp);
 void scr_context_clear(struct scr_context_t context);
 const char *scr_context_input(struct scr_context_t context);
 

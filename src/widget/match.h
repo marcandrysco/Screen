@@ -28,7 +28,7 @@ typedef void (*scr_match_proc_f)(const char *input, void *arg);
  * matching function declarations
  */
 
-struct scr_resp_h scr_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg);
+struct scr_resp_t scr_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg);
 
 /* %~scr.h% */
 

@@ -30,6 +30,7 @@ Target
 	Source	"src/widget/index.c"
 	Source	"src/widget/match.c"
 	Source	"src/widget/pane.c"
+	Source	"src/widget/resp.c"
 	Source	"src/widget/ui.c"
 	Source	"src/widget/widget.c"
 

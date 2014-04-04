@@ -1,6 +1,7 @@
 #include "../common.h"
 #include "match.h"
 #include "handler.h"
+#include "resp.h"
 #include "widget.h"
 
 
@@ -34,7 +35,7 @@ static void match_help(struct io_output_t output, void *arg);
  */
 
 _export
-struct scr_resp_h scr_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg)
+struct scr_resp_t scr_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg)
 {
 	struct match_t *match;
 
@@ -43,7 +44,7 @@ struct scr_resp_h scr_match(scr_match_iter_f iter, scr_match_proc_f proc, void *
 	match->proc = proc;
 	match->arg = arg;
 
-	return (struct scr_resp_h){ scr_match_resp, match };
+	return scr_resp_callback(scr_match_resp, match);
 }
 
 /**

@@ -7,13 +7,14 @@
 #include "edit.h"
 #include "handler.h"
 #include "pane.h"
+#include "resp.h"
 #include "widget.h"
 
 
 /**
  * UI widget structure.
  *   @pane, cur: The child and current pane.
- *   @raw, input: The raw and input flags.
+ *   @raw: The raw flags.
  *   @msg, help: Message and help chunk.
  *   @prompt: The prompt edit widget.
  *   @cmd: The command handler.
@@ -27,12 +28,12 @@ struct scr_ui_t {
 	struct scr_pane_t *pane, *cur;
 
 	char *buf;
-	bool raw, input;
+	bool raw;
 	struct scr_buf_t *msg, *help;
 	struct scr_edit_t prompt;
 
 	struct scr_cmd_h cmd;
-	struct scr_resp_h resp;
+	struct scr_resp_t resp;
 
 	uint64_t delay, expire;
 
@@ -79,11 +80,11 @@ struct scr_ui_t *scr_ui_new(scr_ui_f func, void *arg)
 
 	ui = mem_alloc(sizeof(struct scr_ui_t));
 	ui->raw = false;
-	ui->input = false;
 	ui->msg = NULL;
 	ui->help = NULL;
 	ui->func = func;
 	ui->arg = arg;
+	ui->resp = scr_resp_null;
 	ui->cmd = (struct scr_cmd_h){ NULL, NULL };
 	ui->pane = ui->cur = scr_pane_new(func(arg));
 
@@ -98,14 +99,17 @@ struct scr_ui_t *scr_ui_new(scr_ui_f func, void *arg)
 _export
 void scr_ui_delete(struct scr_ui_t *ui)
 {
+	if(!scr_resp_isnull(ui->resp))
+		scr_resp_delete(ui->resp);
+
 	if(ui->msg != NULL)
 		scr_buf_delete(ui->msg);
 
 	if(ui->help != NULL)
 		scr_buf_delete(ui->help);
 
-	if(ui->input)
-		scr_edit_destroy(&ui->prompt);
+	if(!scr_resp_isnull(ui->resp))
+		scr_resp_delete(ui->resp);
 
 	scr_pane_delete(ui->pane);
 	mem_free(ui);
@@ -125,12 +129,12 @@ void scr_ui_render(struct scr_ui_t *ui, struct scr_view_t view, bool focus)
 	struct scr_pair_t pair;
 
 	pair = scr_pack_status(view);
-	scr_pane_render(ui->pane, pair.front, focus && !ui->input);
+	scr_pane_render(ui->pane, pair.front, focus && scr_resp_isnull(ui->resp));
 
 	if(ui->msg != NULL) {
 		scr_draw_view(scr_pack_horiz(&pair.back, ui->msg->box.size.width), ui->msg);
 
-		if(ui->input)
+		if(!scr_resp_isnull(ui->resp))
 			scr_edit_render(&ui->prompt, pair.back, true);
 	}
 
@@ -169,21 +173,21 @@ void scr_ui_keypress(struct scr_ui_t *ui, int32_t key, bool *term)
 	context.close = ui_term;
 	context.arg = term;
 
-	if(ui->input) {
+	if(!scr_resp_isnull(ui->resp)) {
 		if(scr_resp_exec(ui->resp, key, context, (struct scr_complete_h){ ui_complete, ui })) {
-			if(ui->input)
+			if(!scr_resp_isnull(ui->resp))
 				scr_edit_keypress(&ui->prompt, key, context);
 		}
 
-		if(ui->input && (key == scr_esc_e)) {
-			ui->input = false;
+		if(!scr_resp_isnull(ui->resp) && (key == scr_esc_e)) {
 			scr_edit_destroy(&ui->prompt);
+			scr_resp_replace(&ui->resp, scr_resp_null);
 			scr_buf_replace(&ui->msg, NULL);
 			scr_buf_replace(&ui->help, NULL);
 		}
 	}
 	else if(key == ':')
-		scr_ui_prompt(ui, io_chunk_str(":"), (struct scr_resp_h){ cmd_resp, ui });
+		scr_ui_prompt(ui, io_chunk_str(":"), scr_resp_callback(cmd_resp, ui));
 	else {
 		if(ui->msg != NULL) {
 			scr_buf_delete(ui->msg);
@@ -233,8 +237,8 @@ void scr_ui_msg(struct scr_ui_t *ui, struct io_chunk_t msg)
 	struct scr_accum_t *accum;
 	struct scr_output_t output;
 
-	if(ui->input) {
-		ui->input = false;
+	if(!scr_resp_isnull(ui->resp)) {
+		scr_resp_replace(&ui->resp, scr_resp_null);
 		scr_edit_destroy(&ui->prompt);
 	}
 
@@ -277,12 +281,12 @@ void scr_ui_help(struct scr_ui_t *ui, struct io_chunk_t msg)
  */
 
 _export
-void scr_ui_prompt(struct scr_ui_t *ui, struct io_chunk_t msg, struct scr_resp_h resp)
+void scr_ui_prompt(struct scr_ui_t *ui, struct io_chunk_t msg, struct scr_resp_t resp)
 {
 	struct scr_accum_t *accum;
 	struct scr_output_t output;
 
-	if(ui->input)
+	if(!scr_resp_isnull(ui->resp))
 		scr_edit_destroy(&ui->prompt);
 
 	accum = scr_accum_new();
@@ -295,8 +299,7 @@ void scr_ui_prompt(struct scr_ui_t *ui, struct io_chunk_t msg, struct scr_resp_h
 	scr_accum_delete(accum);
 
 	ui->buf = NULL;
-	ui->input = true;
-	ui->resp = resp;
+	scr_resp_replace(&ui->resp, resp);
 	scr_edit_init(&ui->prompt, &ui->buf);
 }
 
@@ -331,12 +334,13 @@ static void error_proc(struct io_output_t output, const struct io_chunk_t *error
 _export
 void scr_ui_clear(struct scr_ui_t *ui)
 {
-	if(ui->input)
+	if(!scr_resp_isnull(ui->resp)) {
 		scr_edit_destroy(&ui->prompt);
+		scr_resp_replace(&ui->resp, scr_resp_null);
+	}
 
 	scr_buf_replace(&ui->msg, NULL);
 	scr_buf_replace(&ui->help, NULL);
-	ui->input = false;
 }
 
 /**
@@ -361,7 +365,7 @@ void scr_ui_status(struct scr_ui_t *ui, struct io_chunk_t status)
 _export
 const char *scr_ui_input(struct scr_ui_t *ui)
 {
-	return ui->input ? ui->buf : NULL;
+	return !scr_resp_isnull(ui->resp) ? ui->buf : NULL;
 }
 
 
