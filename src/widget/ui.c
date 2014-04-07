@@ -175,8 +175,12 @@ void scr_ui_keypress(struct scr_ui_t *ui, int32_t key, bool *term)
 
 	if(!scr_resp_isnull(ui->resp)) {
 		if(scr_resp_exec(ui->resp, key, context, (struct scr_complete_h){ ui_complete, ui })) {
-			if(!scr_resp_isnull(ui->resp))
-				scr_edit_keypress(&ui->prompt, key, context);
+			if(!scr_resp_isnull(ui->resp)) {
+				if(ui->prompt.len == 0 && key == scr_backspace_e)
+					scr_ui_clear(ui);
+				else
+					scr_edit_keypress(&ui->prompt, key, context);
+			}
 		}
 
 		if(!scr_resp_isnull(ui->resp) && (key == scr_esc_e)) {
