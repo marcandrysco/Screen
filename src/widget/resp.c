@@ -323,12 +323,6 @@ static void match_help(struct io_output_t output, void *arg)
 }
 
 
-
-
-
-
-
-
 /**
  * Handle a keypress on the home widget.
  *   @home: The home widget.
