@@ -5,8 +5,8 @@ Target
 	Name	"scr"
 	Type	"Library"
 
-	CFlags	"`pkg-config --cflags shim.new`"
-	LDFlags	"`pkg-config --libs shim.new`"
+	CFlags	"`pkg-config --cflags shim`"
+	LDFlags	"`pkg-config --libs shim`"
 
 	If [ "$visibility" ]
 		CFlags	+"-fvisibility=internal"
@@ -23,8 +23,8 @@ Target
 	Source	"src/scr.c"
 	Source	"src/output.c"
 
+	Extra	"src/widget/defs.h"
 	Extra	"src/widget/handler.h"
-
 	Source	"src/widget/edit.c"
 	Source	"src/widget/handler.c"
 	Source	"src/widget/index.c"

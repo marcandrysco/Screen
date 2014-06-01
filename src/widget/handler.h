@@ -56,16 +56,6 @@ struct scr_complete_h {
 
 
 /**
- * Selection function.
- *   @entry: The entry.
- *   @key: The selected key.
- *   @context: The context.
- *   @arg: The argument.
- */
-
-typedef void (*scr_select_f)(const char *entry, const void *key, struct scr_context_t context, void *arg);
-
-/**
  * Selection handler.
  *   @func: The function.
  *   @arg: The argument.
@@ -82,7 +72,7 @@ struct scr_select_h {
  */
 
 void scr_cmd_exec(struct scr_cmd_h cmd, const char *str, struct scr_context_t context);
-void scr_select_exec(struct scr_select_h select, const char *entry, const void *key, struct scr_context_t context);
+void scr_select_exec(struct scr_select_h select, const char *entry, void *key, struct scr_context_t context);
 void scr_complete_exec(struct scr_complete_h complete, const char *str);
 
 /* %~scr.h% */

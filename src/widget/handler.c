@@ -27,7 +27,7 @@ void scr_cmd_exec(struct scr_cmd_h cmd, const char *str, struct scr_context_t co
  */
 
 _export
-void scr_select_exec(struct scr_select_h select, const char *entry, const void *key, struct scr_context_t context)
+void scr_select_exec(struct scr_select_h select, const char *entry, void *key, struct scr_context_t context)
 {
 	if(select.func != NULL)
 		select.func(entry, key, context, select.arg);

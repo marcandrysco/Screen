@@ -42,6 +42,21 @@ struct match_t {
 };
 
 /**
+ * Selection structure.
+ *   @iter: Iterator generator.
+ *   @filter: The filter handler.
+ *   @proc: Process.
+ *   @arg: The argument.
+ */
+
+struct select_t {
+	scr_enum_f iter;
+	struct iter_filter_h filter;
+	scr_select_f proc;
+	void *arg;
+};
+
+/**
  * Confirmation structure.
  *   @func: The function.
  *   @arg: The argument.
@@ -64,6 +79,8 @@ static bool callback_resp(struct callback_t *callback, int32_t key, struct scr_c
 
 static bool match_resp(struct match_t *match, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 static void match_help(struct io_output_t output, void *arg);
+
+static bool select_resp(struct select_t *select, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 
 static bool confirm_resp(struct confirm_t *confirm, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 
@@ -139,6 +156,23 @@ struct scr_resp_t scr_resp_match(scr_match_iter_f iter, scr_match_proc_f proc, v
 
 	return (struct scr_resp_t){ match, &match_iface };
 }
+
+
+_export
+struct scr_resp_t scr_resp_select(scr_enum_f iter, struct iter_filter_h filter, scr_select_f proc, void *arg)
+{
+	struct select_t *select;
+	static struct scr_resp_i iface = { (scr_resp_f)select_resp, mem_delete };
+
+	select = mem_alloc(sizeof(struct select_t));
+	select->iter = iter;
+	select->filter = filter;
+	select->proc = proc;
+	select->arg = arg;
+
+	return (struct scr_resp_t){ select, &iface };
+}
+
 
 /**
  * Creating a responder for yes/noconfirmation.
@@ -320,6 +354,108 @@ static void match_help(struct io_output_t output, void *arg)
 		io_printf(output, "%s ", item);
 }
 
+
+/**
+ * Handle a selection response.
+ *   @select: The selection information.
+ *   @key: The key.
+ *   @context: The context.
+ *   @complete: The completion handler.
+ *   &returns: Always true to process a character.
+ */
+
+static bool select_resp(struct select_t *select, int32_t key, struct scr_context_t context, struct scr_complete_h complete)
+{
+	struct iter_t iter;
+	const char *item, *input = scr_context_input(context);
+	size_t pre = str_len(input);
+
+	if(key == '\t') {
+		char *longest = NULL;
+
+		iter = select->iter(select->arg);
+		if(!iter_filter_isnull(select->filter))
+			iter = iter_filter(iter, select->filter);
+
+		while((item = iter_next(iter)) != NULL) {
+			if(!str_isprefix(item, input))
+				continue;
+
+			if(longest != NULL)
+				str_longest(longest + pre, item + pre);
+			else
+				longest = str_dup(item);
+		}
+
+		iter_delete(iter);
+
+		if(longest != NULL) {
+			if(str_isequal(input, longest)) {
+				char *entry;
+				struct avltree_t tree = avltree_empty(compare_str, mem_free);
+
+				iter = select->iter(select->arg);
+				if(!iter_filter_isnull(select->filter))
+					iter = iter_filter(iter, select->filter);
+
+				while((item = iter_next(iter)) != NULL) {
+					if(!str_isprefix(item, input))
+						continue;
+
+					entry = str_dup(item);
+					avltree_insert(&tree, entry, entry);
+				}
+				
+				iter_delete(iter);
+
+				scr_context_help(context, (struct io_chunk_t){ match_help, &tree });
+				avltree_destroy(&tree);
+			}
+			else
+				scr_complete_exec(complete, longest);
+
+			mem_free(longest);
+		}
+	}
+	else if(key == '\n') {
+		void *key, *sel = NULL;
+		char *match = NULL;
+
+		iter = select->iter(select->arg);
+
+		try {
+			while((key = iter_next(iter)) != NULL) {
+				item = select->filter.func(key, select->filter.arg);
+				if(!str_isprefix(item, input))
+					continue;
+
+				if(sel != NULL) {
+					sel = NULL;
+					mem_free(match);
+
+					break;
+				}
+				else {
+					sel = key;
+					match = str_dup(item);
+				}
+
+			}
+
+			if(sel == NULL)
+				throw("invalid selection");
+
+			select->proc(match, sel, context, select->arg);
+		}
+		catch(e)
+			scr_context_error(context, io_chunk_str(e));
+
+		mem_delete(match);
+		iter_delete(iter);
+	}
+
+	return true;
+}
 
 /**
  * Handle a keypress on the home widget.

@@ -31,5 +31,6 @@
 
 #include <shim.h>
 #include "defs.h"
+#include "widget/defs.h"
 
 #endif

@@ -24,60 +24,6 @@ struct scr_select_h;
 
 typedef struct scr_iter_t (*scr_index_f)(void *arg);
 
-/**
- * Retrieve the next item from the index iterator.
- *   @arg: The argument.
- *   @key: The key.
- *   &returns: The chunk.
- */
-
-typedef struct io_chunk_t (*scr_iter_f)(void *ref, void **key);
-
-/**
- * Iterator structure.
- *   @next: The next value.
- *   @delete: Delete.
- */
-
-struct scr_iter_i {
-	scr_iter_f next;
-	delete_f delete;
-};
-
-/**
- * Iterator structure.
- *   @ref: The reference.
- *   @iface: The interface.
- */
-
-struct scr_iter_t {
-	void *ref;
-	const struct scr_iter_i *iface;
-};
-
-
-/**
- * Retrieve the next item from the iterator.
- *   @arg: The argument.
- *   @key: The key.
- *   &returns: The chunk.
- */
-
-static inline struct io_chunk_t scr_iter_next(struct scr_iter_t iter, void **key)
-{
-	return iter.iface->next(iter.ref, key);
-}
-
-/**
- * Delete the iterator.
- *   @iter: The iterator.
- */
-
-static inline void scr_iter_delete(struct scr_iter_t iter)
-{
-	iter.iface->delete(iter.ref);
-}
-
 
 /*
  * index function declarations

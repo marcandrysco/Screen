@@ -1,5 +1,6 @@
 HEADERS = \
 	  src/defs.h \
+	  src/widget/defs.h \
 	  \
 	  src/buf.h \
 	  src/output.h \
