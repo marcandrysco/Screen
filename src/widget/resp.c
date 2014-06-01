@@ -295,10 +295,8 @@ static bool match_resp(struct match_t *match, int32_t key, struct scr_context_t 
 		}
 	}
 	else if(key == '\n') {
-		try {
-			match->proc(input, match->arg);
-			scr_context_clear(context);
-		}
+		try
+			match->proc(context, match->arg);
 		catch(e)
 			scr_context_error(context, io_chunk_str(e));
 	}

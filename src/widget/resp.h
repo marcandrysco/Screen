@@ -70,11 +70,11 @@ typedef struct iter_t (*scr_match_iter_f)(void *arg);
 
 /**
  * Process the matched input.
- *   @input: The input.
+ *   @context: The context.
  *   @arg: The argument.
  */
 
-typedef void (*scr_match_proc_f)(const char *input, void *arg);
+typedef void (*scr_match_proc_f)(struct scr_context_t context, void *arg);
 
 
 /**
