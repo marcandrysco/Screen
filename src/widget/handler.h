@@ -55,18 +55,6 @@ struct scr_complete_h {
 };
 
 
-/**
- * Selection handler.
- *   @func: The function.
- *   @arg: The argument.
- */
-
-struct scr_select_h {
-	scr_select_f func;
-	void *arg;
-};
-
-
 /*
  * handler function declarations
  */

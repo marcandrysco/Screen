@@ -98,7 +98,7 @@ extern const struct scr_resp_t scr_resp_null;
 struct scr_resp_t scr_resp_new(void *ref, scr_resp_f resp, delete_f delete);
 struct scr_resp_t scr_resp_callback(scr_resp_callback_f func, void *arg);
 struct scr_resp_t scr_resp_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg);
-struct scr_resp_t scr_resp_select(scr_enum_f iter, struct iter_filter_h filter, scr_select_f proc, void *arg);
+struct scr_resp_t scr_resp_select(struct iter_enum_h iter, struct iter_filter_h filter, struct scr_select_h proc);
 struct scr_resp_t scr_resp_confirm(scr_confirm_f func, void *arg);
 bool scr_resp_exec(struct scr_resp_t resp, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 void scr_resp_delete(struct scr_resp_t resp);

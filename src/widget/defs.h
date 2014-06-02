@@ -110,6 +110,17 @@ static inline struct iter_t scr_enum_exec(struct scr_enum_h handler)
 
 typedef void (*scr_select_f)(const char *entry, void *key, struct scr_context_t context, void *arg);
 
+/**
+ * Selection handler.
+ *   @func: The function.
+ *   @arg: The argument.
+ */
+
+struct scr_select_h {
+	scr_select_f func;
+	void *arg;
+};
+
 /* %~scr.h% */
 
 /*

@@ -45,15 +45,13 @@ struct match_t {
  * Selection structure.
  *   @iter: Iterator generator.
  *   @filter: The filter handler.
- *   @proc: Process.
- *   @arg: The argument.
+ *   @proc: Process a select.
  */
 
 struct select_t {
-	scr_enum_f iter;
+	struct iter_enum_h iter;
 	struct iter_filter_h filter;
-	scr_select_f proc;
-	void *arg;
+	struct scr_select_h proc;
 };
 
 /**
@@ -81,6 +79,7 @@ static bool match_resp(struct match_t *match, int32_t key, struct scr_context_t 
 static void match_help(struct io_output_t output, void *arg);
 
 static bool select_resp(struct select_t *select, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
+static void select_help(struct io_output_t output, void *arg);
 
 static bool confirm_resp(struct confirm_t *confirm, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 
@@ -157,9 +156,16 @@ struct scr_resp_t scr_resp_match(scr_match_iter_f iter, scr_match_proc_f proc, v
 	return (struct scr_resp_t){ match, &match_iface };
 }
 
+/**
+ * Create a responder for selecting.
+ *   @iter: The iterator enumerator.
+ *   @filter: The filter.
+ *   @proc: Select response.
+ *   &returns: The response.
+ */
 
 _export
-struct scr_resp_t scr_resp_select(scr_enum_f iter, struct iter_filter_h filter, scr_select_f proc, void *arg)
+struct scr_resp_t scr_resp_select(struct iter_enum_h iter, struct iter_filter_h filter, struct scr_select_h proc)
 {
 	struct select_t *select;
 	static struct scr_resp_i iface = { (scr_resp_f)select_resp, mem_delete };
@@ -168,7 +174,6 @@ struct scr_resp_t scr_resp_select(scr_enum_f iter, struct iter_filter_h filter, 
 	select->iter = iter;
 	select->filter = filter;
 	select->proc = proc;
-	select->arg = arg;
 
 	return (struct scr_resp_t){ select, &iface };
 }
@@ -373,7 +378,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 	if(key == '\t') {
 		char *longest = NULL;
 
-		iter = select->iter(select->arg);
+		iter = iter_enum(select->iter);
 		if(!iter_filter_isnull(select->filter))
 			iter = iter_filter(iter, select->filter);
 
@@ -394,7 +399,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 				char *entry;
 				struct avltree_t tree = avltree_empty(compare_str, mem_free);
 
-				iter = select->iter(select->arg);
+				iter = iter_enum(select->iter);
 				if(!iter_filter_isnull(select->filter))
 					iter = iter_filter(iter, select->filter);
 
@@ -408,7 +413,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 				
 				iter_delete(iter);
 
-				scr_context_help(context, (struct io_chunk_t){ match_help, &tree });
+				scr_context_help(context, (struct io_chunk_t){ select_help, &tree });
 				avltree_destroy(&tree);
 			}
 			else
@@ -421,7 +426,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 		void *key, *sel = NULL;
 		char *match = NULL;
 
-		iter = select->iter(select->arg);
+		iter = iter_enum(select->iter);
 
 		try {
 			while((key = iter_next(iter)) != NULL) {
@@ -442,10 +447,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 
 			}
 
-			if(sel == NULL)
-				throw("invalid selection");
-
-			select->proc(match, sel, context, select->arg);
+			scr_select_exec(select->proc, sel ? match : NULL, sel, context);
 		}
 		catch(e)
 			scr_context_error(context, io_chunk_str(e));
@@ -456,6 +458,23 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 
 	return true;
 }
+
+/**
+ * Produce the help text to enumerate all matching selections.
+ *   @output: The output.
+ *   @arg: The argument.
+ */
+
+static void select_help(struct io_output_t output, void *arg)
+{
+	const char *item;
+	struct avltree_iter_t iter;
+
+	iter = avltree_iter(arg);
+	while((item = avltree_iter_next(&iter)) != NULL)
+		io_printf(output, "%s ", item);
+}
+
 
 /**
  * Handle a keypress on the home widget.
