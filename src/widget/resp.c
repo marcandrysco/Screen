@@ -50,7 +50,7 @@ struct match_t {
 
 struct select_t {
 	struct iter_enum_h iter;
-	struct iter_filter_h filter;
+	struct io_filter_h filter;
 	struct scr_select_h proc;
 };
 
@@ -165,7 +165,7 @@ struct scr_resp_t scr_resp_match(scr_match_iter_f iter, scr_match_proc_f proc, v
  */
 
 _export
-struct scr_resp_t scr_resp_select(struct iter_enum_h iter, struct iter_filter_h filter, struct scr_select_h proc)
+struct scr_resp_t scr_resp_select(struct iter_enum_h iter, struct io_filter_h filter, struct scr_select_h proc)
 {
 	struct select_t *select;
 	static struct scr_resp_i iface = { (scr_resp_f)select_resp, mem_delete };
@@ -371,18 +371,19 @@ static void match_help(struct io_output_t output, void *arg)
 
 static bool select_resp(struct select_t *select, int32_t key, struct scr_context_t context, struct scr_complete_h complete)
 {
-	struct iter_t iter;
-	const char *item, *input = scr_context_input(context);
+	const char *input = scr_context_input(context);
 	size_t pre = str_len(input);
 
 	if(key == '\t') {
+		struct io_iter_t iter;
 		char *longest = NULL;
+		struct io_chunk_t chunk;
 
-		iter = iter_enum(select->iter);
-		if(!iter_filter_isnull(select->filter))
-			iter = iter_filter(iter, select->filter);
+		iter = io_iter_filter(iter_enum(select->iter), select->filter);
+		while(!io_chunk_isnull(chunk = io_iter_next(iter))) {
+			char item[io_chunk_proc_len(chunk) + 1];
 
-		while((item = iter_next(iter)) != NULL) {
+			io_chunk_proc_buf(chunk, item);
 			if(!str_isprefix(item, input))
 				continue;
 
@@ -392,18 +393,18 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 				longest = str_dup(item);
 		}
 
-		iter_delete(iter);
+		io_iter_delete(iter);
 
 		if(longest != NULL) {
 			if(str_isequal(input, longest)) {
 				char *entry;
 				struct avltree_t tree = avltree_empty(compare_str, mem_free);
 
-				iter = iter_enum(select->iter);
-				if(!iter_filter_isnull(select->filter))
-					iter = iter_filter(iter, select->filter);
+				iter = io_iter_filter(iter_enum(select->iter), select->filter);
+				while(!io_chunk_isnull(chunk = io_iter_next(iter))) {
+					char item[io_chunk_proc_len(chunk) + 1];
 
-				while((item = iter_next(iter)) != NULL) {
+					io_chunk_proc_buf(chunk, item);
 					if(!str_isprefix(item, input))
 						continue;
 
@@ -411,7 +412,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 					avltree_insert(&tree, entry, entry);
 				}
 				
-				iter_delete(iter);
+				io_iter_delete(iter);
 
 				scr_context_help(context, (struct io_chunk_t){ select_help, &tree });
 				avltree_destroy(&tree);
@@ -423,6 +424,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 		}
 	}
 	else if(key == '\n') {
+		struct iter_t iter;
 		void *key, *sel = NULL;
 		char *match = NULL;
 
@@ -430,7 +432,10 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 
 		try {
 			while((key = iter_next(iter)) != NULL) {
-				item = select->filter.func(key, select->filter.arg);
+				struct io_chunk_t chunk = io_filter_apply(select->filter, key);
+				char item[io_chunk_proc_len(chunk) + 1];
+
+				io_chunk_proc_buf(chunk, item);
 				if(!str_isprefix(item, input))
 					continue;
 
