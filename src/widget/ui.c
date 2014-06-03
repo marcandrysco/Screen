@@ -153,6 +153,7 @@ static void ui_complete(const char *str, void *arg)
 	struct scr_ui_t *ui = arg;
 
 	scr_edit_replace(&ui->prompt, str);
+	ui->buf = ui->prompt.buf;
 }
 
 /**

@@ -426,7 +426,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 	else if(key == '\n') {
 		struct iter_t iter;
 		void *key, *sel = NULL;
-		char *match = NULL;
+		char *volatile match = NULL;
 
 		iter = iter_enum(select->iter);
 
