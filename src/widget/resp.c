@@ -263,8 +263,6 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 
 					if(sel != NULL) {
 						sel = NULL;
-						mem_free(match);
-
 						break;
 					}
 					else {
@@ -275,7 +273,7 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 				}
 			}
 
-			scr_select_exec(select->proc, sel ? match : NULL, sel, context);
+			scr_select_exec(select->proc, sel ? match : input, sel, context);
 		}
 		catch(e)
 			scr_context_error(context, io_chunk_str(e));
