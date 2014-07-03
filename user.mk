@@ -13,6 +13,7 @@ HEADERS = \
 	  src/widget/index.h \
 	  src/widget/pane.h \
 	  src/widget/resp.h \
+	  src/widget/select.h \
 	  src/widget/ui.h \
 	  src/widget/widget.h \
 
