@@ -258,18 +258,13 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 					char item[io_chunk_proc_len(chunk) + 1];
 
 					io_chunk_proc_buf(chunk, item);
-					if(!str_isprefix(item, input))
+					if(!str_isequal(item, input))
 						continue;
 
-					if(sel != NULL) {
-						sel = NULL;
-						break;
-					}
-					else {
-						sel = key;
-						match = str_dup(item);
-					}
+					sel = key;
+					match = str_dup(item);
 
+					break;
 				}
 			}
 
