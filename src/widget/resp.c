@@ -28,6 +28,11 @@ struct callback_t {
 	void *arg;
 };
 
+struct entry_t {
+	scr_entry_f func;
+	void *arg;
+};
+
 /**
  * Matching structure.
  *   @iter: Iterator.
@@ -74,6 +79,8 @@ static bool inst_resp(struct inst_t *inst, int32_t key, struct scr_context_t con
 static void inst_delete(struct inst_t *inst);
 
 static bool callback_resp(struct callback_t *callback, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
+
+static bool entry_resp(struct entry_t *entry, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 
 static bool match_resp(struct match_t *match, int32_t key, struct scr_context_t context, struct scr_complete_h complete);
 static void match_help(struct io_output_t output, void *arg);
@@ -135,6 +142,50 @@ struct scr_resp_t scr_resp_callback(scr_resp_callback_f func, void *arg)
 
 	return (struct scr_resp_t){ callback, &callback_iface };
 }
+
+
+/**
+ * Create a response for an entry callback.
+ *   @func: The function.
+ *   @arg: The argument.
+ */
+
+_export
+struct scr_resp_t scr_resp_entry(scr_entry_f func, void *arg)
+{
+	struct entry_t *entry;
+	static const struct scr_resp_i iface = { (scr_resp_f)entry_resp, mem_delete };
+
+	entry = mem_alloc(sizeof(struct entry_t));
+	*entry = (struct entry_t){ func, arg };
+
+	return (struct scr_resp_t){ entry, &iface };
+}
+
+/**
+ * Process an entry response.
+ *   @entry: The entry.
+ *   @key: The key.
+ *   @context: The context.
+ *   @complete: The autocomplete structure.
+ *   &returns: Whether or not to process the character.
+ */
+
+static bool entry_resp(struct entry_t *entry, int32_t key, struct scr_context_t context, struct scr_complete_h complete)
+{
+	if(key == '\n') {
+		try {
+			entry->func(scr_context_input(context), entry->arg);
+
+			scr_context_clear(context);
+		}
+		catch(e)
+			scr_context_error(context, io_chunk_str(e));
+	}
+
+	return true;
+}
+
 
 /**
  * Creating a responder for matching.

@@ -61,6 +61,14 @@ struct scr_resp_t {
 
 
 /**
+ * Text entry function.
+ *   @entry: The entry.
+ *   @arg: The argument.
+ */
+
+typedef void (*scr_entry_f)(const char *entry, void *arg);
+
+/**
  * Create an iterator for matching.
  *   @arg: The argument.
  *   &returns: The iterator.
@@ -97,6 +105,7 @@ extern const struct scr_resp_t scr_resp_null;
 
 struct scr_resp_t scr_resp_new(void *ref, scr_resp_f resp, delete_f delete);
 struct scr_resp_t scr_resp_callback(scr_resp_callback_f func, void *arg);
+struct scr_resp_t scr_resp_entry(scr_entry_f func, void *arg);
 struct scr_resp_t scr_resp_match(scr_match_iter_f iter, scr_match_proc_f proc, void *arg);
 struct scr_resp_t scr_resp_select(struct enum_t iter, struct io_filter_t filter, struct scr_select_h proc);
 struct scr_resp_t scr_resp_confirm(scr_confirm_f func, void *arg);
