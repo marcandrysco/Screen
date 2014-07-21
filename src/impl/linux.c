@@ -255,7 +255,14 @@ void scr_impl_swap(struct scr_impl_t *impl, struct scr_buf_t *buf)
 					skipmove = true;
 				}
 
-				fdwrite(impl, "%c", newpt.code);
+				if(newpt.code < 0x80)
+					fdwrite(impl, "%c", newpt.code);
+				else if(newpt.code < 0x800)
+					fdwrite(impl, "%c%c", 0xC0 | ((newpt.code & 0x7C0) >> 6), 0x80 | (newpt.code & 0x3F));
+				else if(newpt.code < 0x10000)
+					fdwrite(impl, "%c%c%c", 0xE0 | ((newpt.code & 0xF000) >> 12), 0x80 | ((newpt.code & 0xFC0) >> 6), 0x80 | (newpt.code & 0x3F));
+				else
+					fdwrite(impl, "%c%c%c%c", 0xF0 | ((newpt.code & 0x1C0000) >> 18), 0x80 | ((newpt.code & 0x3F000) >> 12), 0x80 | ((newpt.code & 0xFC0) >> 6), 0x80 | (newpt.code & 0x3F));
 			}
 			else
 				skipmove = false;

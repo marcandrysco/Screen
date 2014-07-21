@@ -36,20 +36,37 @@ void scr_output_write(struct scr_output_t *output, const void *restrict buf, siz
 
 	switch(output->wrap) {
 	case scr_wrap_none_e:
-		while(nbytes != '\0') {
+		while(nbytes > 0) {
 			if(*text == '\n') {
+				text++;
 				output->coord.x = 0;
 				output->coord.y++;
+				nbytes--;
+			}
+			else if((uint8_t)*text >= 0x80) {
+				uint8_t len;
+				uint32_t code;
+				uint8_t val = (uint8_t)(*text++);
+
+				len = m_uintclz(~val << (8 * (sizeof(unsigned int) - 1)));
+				code = val & ~(((1 << len) - 1) << (8 - len));
+
+				nbytes -= len;
+				for(len--; len > 0; len--)
+					code = (code << 6) | ((uint8_t)(*text++) & 0x3F);
+
+				output->func(output->coord, (struct scr_pt_t){ code, output->prop }, output->arg);
+				output->coord.x++;
 			}
 			else {
-				output->func(output->coord, (struct scr_pt_t){ *text, output->prop }, output->arg);
+				uint8_t val = *text++;
+
+				output->func(output->coord, (struct scr_pt_t){ val, output->prop }, output->arg);
 				//scr_view_set(output->view, output->coord, (struct scr_pt_t){ *text, output->prop });
 
 				output->coord.x++;
+				nbytes--;
 			}
-
-			text++;
-			nbytes--;
 		}
 
 		break;
