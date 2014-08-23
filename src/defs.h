@@ -133,22 +133,28 @@ static inline bool scr_pt_isequal(struct scr_pt_t pt1, struct scr_pt_t pt2)
 /**
  * Special key enumerator.
  *   @scr_esc_e: Escape.
+ *   @scr_ctrl_e: Control modifier.
  *   @scr_up_e: Up.
  *   @scr_down_e: Down.
  *   @scr_right_e: Right.
  *   @scr_left_e: Left.
  *   @scr_backspace_e: Backspace.
  *   @scr_delete_e: Delete.
+ *   @scr_tab_e: Tab.
+ *   @scr_rtab_e: Reverse tab.
  */
 
 enum scr_key_e {
 	scr_esc_e = '\x1B',
+	scr_ctrl_e = 0x40000000,
 	scr_up_e = -0x10000,
 	scr_down_e = -0x10001,
 	scr_right_e = -0x10002,
 	scr_left_e = -0x10003,
 	scr_backspace_e = -0x10010,
-	scr_delete_e = -0x10011
+	scr_delete_e = -0x10011,
+	scr_tab_e = '\t',
+	scr_rtab_e = -0x10012
 };
 
 

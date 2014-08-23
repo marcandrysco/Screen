@@ -161,12 +161,16 @@ int32_t scr_impl_read(struct scr_impl_t *impl, int timeout)
 			case 'B': return scr_down_e;
 			case 'C': return scr_right_e;
 			case 'D': return scr_left_e;
+			case 'Z': return scr_rtab_e;
 			default: return impl_seq(impl, ch, 3);
 			}
 		}
 		else
 			return impl_seq(impl, ch, 2);
 
+	case '\x04': return scr_ctrl_e | 'D';
+	case '\x0E': return scr_ctrl_e | 'E';
+	case '\x12': return scr_ctrl_e | 'R';
 	case '\x7F': return scr_backspace_e;
 	default: return ch[0];
 	}

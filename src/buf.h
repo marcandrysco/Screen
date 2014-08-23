@@ -153,6 +153,9 @@ static inline struct scr_view_t scr_view_new(struct scr_buf_t *buf)
 
 static inline struct scr_pt_t *scr_view_ref(struct scr_view_t view, struct scr_coord_t coord)
 {
+	if(!scr_size_inside(view.box.size, coord))
+		return NULL;
+
 	return scr_buf_pt(view.buf, scr_coord_add(view.box.coord, coord));
 }
 
@@ -167,6 +170,9 @@ static inline struct scr_pt_t *scr_view_ref(struct scr_view_t view, struct scr_c
 static inline bool scr_view_set(struct scr_view_t view, struct scr_coord_t coord, struct scr_pt_t pt)
 {
 	struct scr_pt_t *ref;
+
+	if(!scr_size_inside(view.box.size, coord))
+		return false;
 
 	ref = scr_buf_pt(view.buf, scr_coord_add(view.box.coord, coord));
 	if(ref == NULL)
@@ -188,6 +194,9 @@ static inline bool scr_view_set(struct scr_view_t view, struct scr_coord_t coord
 static inline bool scr_view_set_code(struct scr_view_t view, struct scr_coord_t coord, uint32_t code)
 {
 	struct scr_pt_t *ref;
+
+	if(!scr_size_inside(view.box.size, coord))
+		return false;
 
 	ref = scr_buf_pt(view.buf, scr_coord_add(view.box.coord, coord));
 	if(ref == NULL)
