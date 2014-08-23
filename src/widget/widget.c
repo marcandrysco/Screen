@@ -5,10 +5,23 @@
 
 
 /*
+ * local function declarations
+ */
+
+static void blank_close(void *ref);
+
+/*
+ * local variables
+ */
+
+static const struct scr_widget_i blank_iface = { NULL, NULL, blank_close};
+
+/*
  * global variables
  */
 
 _export struct scr_widget_t scr_widget_null = { NULL, NULL };
+_export struct scr_widget_t scr_widget_blank = { NULL, &blank_iface };
 
 
 /**
@@ -24,6 +37,16 @@ void scr_widget_close(struct scr_widget_t *widget)
 
 	scr_widget_delete(*widget);
 	*widget = scr_widget_null;
+}
+
+
+/**
+ * Close a blank widget.
+ *   @ref: The reference.
+ */
+
+static void blank_close(void *ref)
+{
 }
 
 

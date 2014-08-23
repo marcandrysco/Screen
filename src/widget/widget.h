@@ -205,6 +205,7 @@ struct scr_widget_t {
  */
 
 extern struct scr_widget_t scr_widget_null;
+extern struct scr_widget_t scr_widget_blank;
 
 /*
  * widget function declarations

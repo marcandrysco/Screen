@@ -97,7 +97,7 @@ void scr_select_render(struct scr_select_t *select, struct scr_view_t view, bool
 			sel = llist_back(&list);
 
 		while((key = llist_front_remove(&list)) != NULL)
-			scr_printf(&output, "%C%C%C\n", scr_chunk_neg(key == sel), io_filter_apply(select->filter, key), scr_chunk_neg(false));
+			scr_printf(&output, "%C%C%C\n", scr_chunk_neg(focus && (key == sel)), io_filter_apply(select->filter, key), scr_chunk_neg(false));
 	}
 	else if(!io_chunk_isnull(select->empty))
 		scr_printf(&output, "%C\n", select->empty);

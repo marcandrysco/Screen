@@ -193,6 +193,10 @@ void scr_ui_keypress(struct scr_ui_t *ui, int32_t key, bool *term)
 	}
 	else if(key == ':')
 		scr_ui_prompt(ui, io_chunk_str(":"), scr_resp_callback(cmd_resp, ui));
+	else if(key == '\t')
+		scr_ui_tab(ui);
+	else if(key == scr_rtab_e)
+		scr_ui_rtab(ui);
 	else {
 		if(ui->msg != NULL) {
 			scr_buf_delete(ui->msg);
@@ -384,6 +388,95 @@ _export
 void scr_ui_cmd(struct scr_ui_t *ui, struct scr_cmd_h handler)
 {
 	ui->cmd = handler;
+}
+
+
+/**
+ * Process a windowing command.
+ *   @ui: The UI widget.
+ *   @cmd: The command.
+ */
+
+_export
+void scr_ui_win(struct scr_ui_t *ui, const char *cmd)
+{
+	if(str_isequal(cmd, "s") || str_isequal(cmd, "split"))
+		scr_ui_hsplit(ui);
+	else if(str_isequal(cmd, "v") || str_isequal(cmd, "vs") || str_isequal(cmd, "vsplit"))
+		scr_ui_vsplit(ui);
+	else if(cmd[0] == 'w') {
+	}
+	else if(cmd[0] == 'h') {
+	}
+}
+
+/**
+ * Horizontal split the UI.
+ *   @ui: The UI.
+ */
+
+_export
+void scr_ui_hsplit(struct scr_ui_t *ui)
+{
+	struct scr_pane_t *front, *back;
+
+	front = scr_pane_new(scr_pane_get(ui->cur));
+	back = scr_pane_new(ui->func(ui->arg));
+	scr_pane_set(ui->cur, scr_split_widget(scr_split_new(scr_split_horiz_e, 0.5, front, back)));
+	ui->cur = front;
+}
+
+/**
+ * Vertical split the UI.
+ *   @ui: The UI.
+ */
+
+_export
+void scr_ui_vsplit(struct scr_ui_t *ui)
+{
+	struct scr_pane_t *front, *back;
+
+	front = scr_pane_new(scr_pane_get(ui->cur));
+	back = scr_pane_new(ui->func(ui->arg));
+	scr_pane_set(ui->cur, scr_split_widget(scr_split_new(scr_split_vert_e, 0.5, front, back)));
+	ui->cur = front;
+}
+
+_export
+bool scr_ui_close(struct scr_ui_t *ui)
+{
+	struct scr_split_t *split;
+
+	split = scr_pane_split(ui->pane);
+	if(split == NULL)
+		return false;
+
+	scr_split_close(&ui->pane, split);
+
+	return true;
+}
+
+
+/**
+ * Process a tab on the UI.
+ *   @ui: The ui.
+ */
+
+_export
+void scr_ui_tab(struct scr_ui_t *ui)
+{
+	ui->cur = scr_pane_tab(ui->pane) ?: ui->cur;
+}
+
+/**
+ * Process a reverse tab on the UI.
+ *   @ui: The ui.
+ */
+
+_export
+void scr_ui_rtab(struct scr_ui_t *ui)
+{
+	ui->cur = scr_pane_rtab(ui->pane) ?: ui->cur;
 }
 
 

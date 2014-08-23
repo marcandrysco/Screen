@@ -48,6 +48,14 @@ const char *scr_ui_input(struct scr_ui_t *ui);
 
 void scr_ui_cmd(struct scr_ui_t *ui, struct scr_cmd_h handler);
 
+void scr_ui_win(struct scr_ui_t *ui, const char *cmd);
+void scr_ui_hsplit(struct scr_ui_t *ui);
+void scr_ui_vsplit(struct scr_ui_t *ui);
+
+void scr_ui_tab(struct scr_ui_t *ui);
+void scr_ui_rtab(struct scr_ui_t *ui);
+bool scr_ui_close(struct scr_ui_t *ui);
+
 /* %~scr.h% */
 
 /*
