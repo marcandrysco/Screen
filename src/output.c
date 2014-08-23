@@ -231,6 +231,41 @@ static void error_proc(struct io_output_t output, void *arg)
 }
 
 
+/**
+ * Fill a view with a point.
+ *   @view: The view.
+ *   @pt: The point.
+ */
+
+_export
+void scr_view_fill(struct scr_view_t view, struct scr_pt_t pt)
+{
+	struct scr_coord_t coord;
+
+	for(coord.y = 0; coord.y < view.box.size.height; coord.y++) {
+		for(coord.x = 0; coord.x < view.box.size.width; coord.x++)
+			scr_view_set(view, coord, pt);
+	}
+}
+
+/**
+ * Fill a view with a code.
+ *   @view: The view.
+ *   @pt: The point.
+ */
+
+_export
+void scr_view_fill_code(struct scr_view_t view, uint32_t code)
+{
+	struct scr_coord_t coord;
+
+	for(coord.y = 0; coord.y < view.box.size.height; coord.y++) {
+		for(coord.x = 0; coord.x < view.box.size.width; coord.x++)
+			scr_view_set_code(view, coord, code);
+	}
+}
+
+
 static void render_pt(struct scr_render_t *render, struct scr_coord_t coord, struct scr_pt_t pt)
 {
 	render->func(coord, pt, render->arg);

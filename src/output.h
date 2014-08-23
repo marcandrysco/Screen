@@ -105,6 +105,13 @@ struct io_chunk_t scr_chunk_neg(bool value);
 struct io_chunk_t scr_chunk_error(bool value);
 
 /*
+ * view function declarations
+ */
+
+void scr_view_fill(struct scr_view_t view, struct scr_pt_t pt);
+void scr_view_fill_code(struct scr_view_t view, uint32_t code);
+
+/*
  * render function declarations
  */
 
