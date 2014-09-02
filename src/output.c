@@ -13,6 +13,7 @@ static bool output_ctrl(struct scr_output_t *output, unsigned int cmd, void *arg
 
 static void bold_proc(struct io_output_t output, void *arg);
 static void neg_proc(struct io_output_t output, void *arg);
+static void uline_proc(struct io_output_t output, void *arg);
 static void error_proc(struct io_output_t output, void *arg);
 
 /*
@@ -196,6 +197,34 @@ static void neg_proc(struct io_output_t output, void *arg)
 
 	io_output_ctrl(output, scr_propget_e, &prop);
 	prop.neg = (arg != (void *)0);
+	io_output_ctrl(output, scr_propset_e, &prop);
+}
+
+
+/**
+ * Create a chunk for modifying the underline flag.
+ *   @value: The underline flag.
+ *   &returns: The chunk.
+ */
+
+_export
+struct io_chunk_t scr_chunk_uline(bool value)
+{
+	return (struct io_chunk_t){ uline_proc, value ? (void *)1 : (void *)0 };
+}
+
+/**
+ * Process an underline flag chunk.
+ *   @output: The output.
+ *   @arg: The argument.
+ */
+
+static void uline_proc(struct io_output_t output, void *arg)
+{
+	struct scr_prop_t prop;
+
+	io_output_ctrl(output, scr_propget_e, &prop);
+	prop.underline = (arg != (void *)0);
 	io_output_ctrl(output, scr_propset_e, &prop);
 }
 

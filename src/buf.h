@@ -207,6 +207,48 @@ static inline bool scr_view_set_code(struct scr_view_t view, struct scr_coord_t 
 	return true;
 }
 
+/**
+ * Set a negative flag on the view.
+ *   @view: The view.
+ *   @coord: The coordinate.
+ *   @neg: The negative flag.
+ *   &returns: True if the coordinate is within the view, false otherwise.
+ */
+
+static inline bool scr_view_set_neg(struct scr_view_t view, struct scr_coord_t coord, bool neg)
+{
+	struct scr_pt_t *ref;
+
+	ref = scr_view_ref(view, coord);
+	if(ref == NULL)
+		return false;
+
+	ref->prop.neg = neg;
+
+	return true;
+}
+
+/**
+ * Set a underline flag on the view.
+ *   @view: The view.
+ *   @coord: The coordinate.
+ *   @uline: The underline flag.
+ *   &returns: True if the coordinate is within the view, false otherwise.
+ */
+
+static inline bool scr_view_set_uline(struct scr_view_t view, struct scr_coord_t coord, bool uline)
+{
+	struct scr_pt_t *ref;
+
+	ref = scr_view_ref(view, coord);
+	if(ref == NULL)
+		return false;
+
+	ref->prop.underline = uline;
+
+	return true;
+}
+
 /* %~scr.h% */
 
 /*

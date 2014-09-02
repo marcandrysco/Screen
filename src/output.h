@@ -102,6 +102,7 @@ void scr_vprintf(struct scr_output_t *output, const char *restrict format, va_li
 
 struct io_chunk_t scr_chunk_bold(bool value);
 struct io_chunk_t scr_chunk_neg(bool value);
+struct io_chunk_t scr_chunk_uline(bool value);
 struct io_chunk_t scr_chunk_error(bool value);
 
 /*
