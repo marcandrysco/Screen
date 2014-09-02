@@ -262,13 +262,13 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 		}
 	}
 	else if(key == '\n') {
-		struct iter_t iter;
 		char *volatile match = NULL;
 
-		iter = enum_iter(select->iter);
-
 		try {
+			struct iter_t iter;
 			void *key, *sel = NULL;
+
+			iter = enum_iter(select->iter);
 
 			if(*input != '\0') {
 				while((key = iter_next(iter)) != NULL) {
@@ -286,13 +286,14 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 				}
 			}
 
+			iter_delete(iter);
+
 			scr_select_exec(select->proc, sel ? match : input, sel, context);
 		}
 		catch(e)
 			scr_context_error(context, io_chunk_str(e));
 
 		mem_delete(match);
-		iter_delete(iter);
 	}
 
 	return true;
