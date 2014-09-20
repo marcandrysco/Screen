@@ -268,9 +268,9 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 			struct iter_t iter;
 			void *key, *sel = NULL;
 
-			iter = enum_iter(select->iter);
-
 			if(*input != '\0') {
+				iter = enum_iter(select->iter);
+
 				while((key = iter_next(iter)) != NULL) {
 					struct io_chunk_t chunk = io_filter_apply(select->filter, key);
 					char item[io_chunk_proc_len(chunk) + 1];
@@ -284,9 +284,9 @@ static bool select_resp(struct select_t *select, int32_t key, struct scr_context
 
 					break;
 				}
-			}
 
-			iter_delete(iter);
+				iter_delete(iter);
+			}
 
 			scr_select_exec(select->proc, sel ? match : input, sel, context);
 		}
