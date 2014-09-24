@@ -78,6 +78,18 @@ static inline struct scr_output_t scr_output_new(scr_output_f func, void *arg)
 }
 
 /**
+ * Create a view that covers all space after the output.
+ *   @output: The output.
+ *   @view: The original view.
+ */
+
+static inline void scr_output_next(struct scr_output_t output, struct scr_view_t *view)
+{
+	view->box.coord.y += output.coord.y;
+	view->box.size.height -= output.coord.y;
+}
+
+/**
  * Create an renderer.
  *   @func: The function.
  *   @arg: The argument.
